@@ -37,10 +37,21 @@ func _ready() -> void:
 	_sfx_cache["chest"] = _generate_fanfare()
 	_sfx_cache["game_over"] = _generate_game_over()
 	
-	# 전역 이벤트 연결
-	EventBus.level_up.connect(func(_l): play_level_up())
-	EventBus.chest_opened.connect(func(): play_chest())
-	EventBus.player_died.connect(func(): play_game_over())
+	# 전역 이벤트 안전하게 동적 연결 (Autoload 상호 순환 컴파일 오류 방지)
+	call_deferred("_connect_event_bus")
+
+func _connect_event_bus() -> void:
+	var eb = get_node_or_null("/root/EventBus")
+	if eb:
+		if eb.has_signal("level_up"):
+			eb.level_up.connect(func(_l): play_level_up())
+		if eb.has_signal("chest_opened"):
+			eb.chest_opened.connect(func(): play_chest())
+		if eb.has_signal("player_died"):
+			eb.player_died.connect(func(): play_game_over())
+
+func get_sfx(sfx_name: String) -> AudioStream:
+	return _sfx_cache.get(sfx_name)
 
 func play_shoot() -> void:
 	_play_stream(_sfx_cache.get("shoot"), 0.0, randf_range(0.96, 1.04))
