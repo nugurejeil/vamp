@@ -43,7 +43,8 @@ func _ready() -> void:
 	# 초기 경험치 신호 전달
 	EventBus.exp_gained.emit(current_exp, max_exp)
 	
-	# 기본 대기 애니메이션 시작
+	# 기본 대기 애니메이션 시작 및 우측 방향 기본 설정
+	visuals.scale.x = -1.0
 	if sprite:
 		sprite.play("idle")
 
@@ -53,13 +54,16 @@ func _physics_process(_delta: float) -> void:
 	move_and_slide()
 	
 	# 이동 방향에 따른 스프라이트 좌우 반전 및 애니메이션 제어
+	# 원본 스프라이트가 왼쪽을 보고 있으므로:
+	# - 오른쪽 이동(move_dir.x > 0): scale.x = -1.0 (우측 반전)
+	# - 왼쪽 이동(move_dir.x < 0): scale.x = 1.0 (기본 좌측)
 	if move_dir != Vector2.ZERO:
 		if sprite and sprite.animation != "walk":
 			sprite.play("walk")
 		if move_dir.x > 0:
-			visuals.scale.x = 1.0
-		elif move_dir.x < 0:
 			visuals.scale.x = -1.0
+		elif move_dir.x < 0:
+			visuals.scale.x = 1.0
 	else:
 		if sprite and sprite.animation != "idle":
 			sprite.play("idle")
