@@ -60,7 +60,6 @@ func _throw_bottle() -> void:
 	else:
 		target_pos += Vector2(randf_range(-throw_range, throw_range), randf_range(-throw_range, throw_range))
 		
-	AudioManager.play_shoot()
 	var zone = zone_scene.instantiate() as HolyWaterZone
 	zone.global_position = target_pos
 	zone.damage = damage

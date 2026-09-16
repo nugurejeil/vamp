@@ -17,20 +17,8 @@ func _ready() -> void:
 	add_child(main_node)
 	print("[PASS] Main scene instantiated into tree")
 	
-	# 2. AudioManager 동작 검증 및 MP3 음원 로드 확인
-	print("[TEST] Verifying AudioManager sfx playback and MP3 replacement...")
-	var shoot_sfx = AudioManager.get_sfx("shoot")
-	var hit_sfx = AudioManager.get_sfx("hit")
-	if not (shoot_sfx is AudioStreamMP3):
-		printerr("[FAIL] AudioManager shoot sound is not AudioStreamMP3")
-		get_tree().quit(1)
-		return
-	if not (hit_sfx is AudioStreamMP3):
-		printerr("[FAIL] AudioManager hit sound is not AudioStreamMP3")
-		get_tree().quit(1)
-		return
-	print("[PASS] Verified: attack_player.mp3 and die_enemy.mp3 are loaded as active SFX")
-	
+	# 2. AudioManager 동작 검증
+	print("[TEST] Verifying procedural AudioManager sfx playback...")
 	AudioManager.play_shoot()
 	AudioManager.play_hit()
 	AudioManager.play_gem()
