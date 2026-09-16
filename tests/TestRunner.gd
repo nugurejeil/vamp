@@ -60,6 +60,23 @@ func _ready() -> void:
 		return
 	print("[PASS] Camera trauma verified: %f" % player.shake_trauma)
 	
+	# 플레이어 AnimatedSprite2D 검증
+	print("[TEST] Verifying Player AnimatedSprite2D and sprite animations...")
+	if not (player.sprite is AnimatedSprite2D):
+		printerr("[FAIL] player.sprite is not AnimatedSprite2D")
+		get_tree().quit(1)
+		return
+	if not player.sprite.sprite_frames.has_animation("walk") or not player.sprite.sprite_frames.has_animation("idle"):
+		printerr("[FAIL] SpriteFrames missing walk or idle animations")
+		get_tree().quit(1)
+		return
+	var walk_frames_count = player.sprite.sprite_frames.get_frame_count("walk")
+	if walk_frames_count != 16:
+		printerr("[FAIL] Expected 16 walk frames, got %d" % walk_frames_count)
+		get_tree().quit(1)
+		return
+	print("[PASS] Player AnimatedSprite2D verified: idle & 16-frame walk animations confirmed")
+	
 	# 5. ESC 일시정지 메뉴 (PauseMenu) 검증
 	var pause_menu = main_node.get_node_or_null("CanvasLayer/PauseMenu") as PauseMenu
 	if pause_menu == null:
