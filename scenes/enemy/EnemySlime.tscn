@@ -1,0 +1,39 @@
+[gd_scene load_steps=5 format=3 uid="uid://cslime001"]
+
+[ext_resource type="Script" path="res://scripts/enemy/EnemySlime.gd" id="1_slime"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 24.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_box"]
+radius = 28.0
+
+[node name="EnemySlime" type="CharacterBody2D" groups=["Enemy"]]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_slime")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="Sprite2D" type="Sprite2D" parent="Visuals"]
+modulate = Color(0.35, 0.9, 0.45, 1)
+scale = Vector2(0.44, 0.44)
+texture = ExtResource("2_icon")
+
+[node name="Hurtbox" type="Area2D" parent="." groups=["EnemyHurtbox"]]
+collision_layer = 16
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_box")
+
+[node name="Hitbox" type="Area2D" parent="." groups=["EnemyHitbox"]]
+collision_layer = 4
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+shape = SubResource("CircleShape2D_box")

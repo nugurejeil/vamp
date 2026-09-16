@@ -1,0 +1,134 @@
+[gd_scene load_steps=11 format=3 uid="uid://cmain001"]
+
+[ext_resource type="Script" path="res://scripts/main/Main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/main/BackgroundGrid.gd" id="2_bg"]
+[ext_resource type="PackedScene" path="res://scenes/player/Player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/weapon/WeaponMagicMissile.tscn" id="4_weapon"]
+[ext_resource type="PackedScene" path="res://scenes/main/EnemySpawner.tscn" id="5_spawner"]
+[ext_resource type="PackedScene" path="res://scenes/ui/LevelUpUI.tscn" id="6_lvlup"]
+[ext_resource type="PackedScene" path="res://scenes/drop/ExpGem.tscn" id="7_gem"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ChestRewardUI.tscn" id="8_chestui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenu.tscn" id="9_pause"]
+[ext_resource type="PackedScene" path="res://scenes/ui/VictoryGameOverUI.tscn" id="10_vic"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+gem_scene = ExtResource("7_gem")
+
+[node name="BackgroundGrid" type="Node2D" parent="."]
+script = ExtResource("2_bg")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+position = Vector2(960, 540)
+
+[node name="WeaponMagicMissile" parent="Player" instance=ExtResource("4_weapon")]
+
+[node name="EnemySpawner" parent="." instance=ExtResource("5_spawner")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="TopBar" type="Control" parent="CanvasLayer/HUD"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 26.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="ExpProgressBar" type="ProgressBar" parent="CanvasLayer/HUD/TopBar"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+show_percentage = false
+
+[node name="LevelLabel" type="Label" parent="CanvasLayer/HUD/TopBar"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = 14.0
+offset_top = -12.0
+offset_right = 90.0
+offset_bottom = 12.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.2, 1)
+theme_override_font_sizes/font_size = 14
+text = "Lv. 1"
+vertical_alignment = 1
+
+[node name="TimerLabel" type="Label" parent="CanvasLayer/HUD/TopBar"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = 2.0
+offset_right = 60.0
+offset_bottom = 24.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "00:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HUD"]
+layout_mode = 0
+offset_top = 26.0
+offset_right = 360.0
+offset_bottom = 160.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/HUD/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HPLabel" type="Label" parent="CanvasLayer/HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.3, 1, 0.4, 1)
+theme_override_font_sizes/font_size = 20
+text = "HP: 100 / 100"
+
+[node name="KillLabel" type="Label" parent="CanvasLayer/HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9, 0.3, 1)
+theme_override_font_sizes/font_size = 18
+text = "Kills: 0"
+
+[node name="EnemyCountLabel" type="Label" parent="CanvasLayer/HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_font_sizes/font_size = 14
+text = "Enemies Alive: 0"
+
+[node name="HintLabel" type="Label" parent="CanvasLayer/HUD/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.6, 0.6, 1)
+theme_override_font_sizes/font_size = 13
+text = "Move: WASD | Auto-Fire | ESC: Pause"
+
+[node name="LevelUpUI" parent="CanvasLayer" instance=ExtResource("6_lvlup")]
+visible = false
+
+[node name="ChestRewardUI" parent="CanvasLayer" instance=ExtResource("8_chestui")]
+visible = false
+
+[node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("9_pause")]
+visible = false
+
+[node name="VictoryGameOverUI" parent="CanvasLayer" instance=ExtResource("10_vic")]
+visible = false

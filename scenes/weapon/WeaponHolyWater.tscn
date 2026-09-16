@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://choly001"]
+
+[ext_resource type="Script" path="res://scripts/weapon/WeaponHolyWater.gd" id="1_holy"]
+
+[node name="WeaponHolyWater" type="Node2D"]
+script = ExtResource("1_holy")
+
+[node name="CooldownTimer" type="Timer" parent="."]
+autostart = true
