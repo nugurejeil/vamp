@@ -7,18 +7,31 @@ const MIX_RATE = 22050
 
 var _players: Array[AudioStreamPlayer] = []
 var _sfx_cache: Dictionary = {}
+var _current_player_idx: int = 0
+var _last_hit_time: float = -1.0
+const MIN_HIT_INTERVAL: float = 0.04 # 다수 적 동시 피격 시 오디오 왜곡/클리핑 방지
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	# 폴리포닉 사운드 플레이어 풀 생성
-	for i in range(8):
+	# 폴리포닉 사운드 플레이어 풀 생성 (동시 재생 채널 16개로 확장)
+	for i in range(16):
 		var p = AudioStreamPlayer.new()
 		add_child(p)
 		_players.append(p)
 		
-	# 사운드 프리셋 합성
-	_sfx_cache["shoot"] = _generate_laser()
-	_sfx_cache["hit"] = _generate_hit()
+	# 1. 플레이어 공격 효과음: attack_player.mp3 우선 로드 (fallback: 프로시저럴 레이저)
+	if ResourceLoader.exists("res://attack_player.mp3"):
+		_sfx_cache["shoot"] = load("res://attack_player.mp3")
+	else:
+		_sfx_cache["shoot"] = _generate_laser()
+		
+	# 2. 적 피격 효과음: die_enemy.mp3 우선 로드 (fallback: 프로시저럴 피격음)
+	if ResourceLoader.exists("res://die_enemy.mp3"):
+		_sfx_cache["hit"] = load("res://die_enemy.mp3")
+	else:
+		_sfx_cache["hit"] = _generate_hit()
+		
+	# 기타 사운드 프리셋 합성
 	_sfx_cache["gem"] = _generate_gem()
 	_sfx_cache["level_up"] = _generate_level_up()
 	_sfx_cache["chest"] = _generate_fanfare()
@@ -30,10 +43,17 @@ func _ready() -> void:
 	EventBus.player_died.connect(func(): play_game_over())
 
 func play_shoot() -> void:
-	_play_stream(_sfx_cache.get("shoot"))
+	_play_stream(_sfx_cache.get("shoot"), 0.0, randf_range(0.96, 1.04))
+
+func play_attack() -> void:
+	play_shoot()
 
 func play_hit() -> void:
-	_play_stream(_sfx_cache.get("hit"))
+	var now = Time.get_ticks_msec() / 1000.0
+	if now - _last_hit_time < MIN_HIT_INTERVAL:
+		return
+	_last_hit_time = now
+	_play_stream(_sfx_cache.get("hit"), 0.0, randf_range(0.95, 1.05))
 
 func play_gem() -> void:
 	_play_stream(_sfx_cache.get("gem"))
@@ -47,17 +67,23 @@ func play_chest() -> void:
 func play_game_over() -> void:
 	_play_stream(_sfx_cache.get("game_over"))
 
-func _play_stream(stream: AudioStream) -> void:
+func _play_stream(stream: AudioStream, volume_db: float = 0.0, pitch: float = 1.0) -> void:
 	if stream == null:
 		return
 	for p in _players:
 		if not p.playing:
 			p.stream = stream
+			p.volume_db = volume_db
+			p.pitch_scale = pitch
 			p.play()
 			return
-	# 모두 재생 중이면 첫 번째 플레이어 재사용
-	_players[0].stream = stream
-	_players[0].play()
+	# 모두 재생 중이면 라운드 로빈 방식으로 채널 순환 재사용
+	var p = _players[_current_player_idx]
+	_current_player_idx = (_current_player_idx + 1) % _players.size()
+	p.stream = stream
+	p.volume_db = volume_db
+	p.pitch_scale = pitch
+	p.play()
 
 # 1. 레이저 발사음 (주파수 하강 톱니/사각파)
 func _generate_laser() -> AudioStreamWAV:
