@@ -15,7 +15,7 @@ var current_exp: int = 0
 var max_exp: int = 5
 
 @onready var visuals: Node2D = $Visuals
-@onready var sprite: AnimatedSprite2D = $Visuals/AnimatedSprite2D
+@onready var sprite: Sprite2D = $Visuals/Sprite2D
 @onready var invuln_timer: Timer = $InvulnerabilityTimer
 @onready var camera: Camera2D = $Camera2D
 @onready var pickup_area: Area2D = $PickupArea
@@ -42,31 +42,17 @@ func _ready() -> void:
 	
 	# 초기 경험치 신호 전달
 	EventBus.exp_gained.emit(current_exp, max_exp)
-	
-	# 기본 대기 애니메이션 시작 및 우측 방향 기본 설정
-	visuals.scale.x = -1.0
-	if sprite:
-		sprite.play("idle")
 
 func _physics_process(_delta: float) -> void:
 	var move_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	velocity = move_dir * speed
 	move_and_slide()
 	
-	# 이동 방향에 따른 스프라이트 좌우 반전 및 애니메이션 제어
-	# 원본 스프라이트가 왼쪽을 보고 있으므로:
-	# - 오른쪽 이동(move_dir.x > 0): scale.x = -1.0 (우측 반전)
-	# - 왼쪽 이동(move_dir.x < 0): scale.x = 1.0 (기본 좌측)
-	if move_dir != Vector2.ZERO:
-		if sprite and sprite.animation != "walk":
-			sprite.play("walk")
-		if move_dir.x > 0:
-			visuals.scale.x = -1.0
-		elif move_dir.x < 0:
-			visuals.scale.x = 1.0
-	else:
-		if sprite and sprite.animation != "idle":
-			sprite.play("idle")
+	# 이동 방향에 따른 스프라이트 좌우 반전
+	if move_dir.x > 0:
+		visuals.scale.x = 1.0
+	elif move_dir.x < 0:
+		visuals.scale.x = -1.0
 
 var shake_trauma: float = 0.0
 
@@ -103,7 +89,7 @@ func heal(amount: float) -> void:
 	# 회복 초록 플래시 연출
 	var tween = create_tween()
 	sprite.modulate = Color(0.3, 1.0, 0.4, 1.0)
-	tween.tween_property(sprite, "modulate", Color.WHITE, 0.2)
+	tween.tween_property(sprite, "modulate", Color(0.28, 0.65, 1, 1), 0.2)
 
 func gain_exp(amount: int) -> void:
 	current_exp += amount
