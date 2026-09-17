@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_box"]
-size = Vector2(72, 72)
+size = Vector2(144, 144)
 
 [node name="TreasureChest" type="Area2D" groups=["TreasureChest"]]
 collision_layer = 32
@@ -16,5 +16,5 @@ shape = SubResource("RectangleShape2D_box")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 modulate = Color(1, 0.85, 0.1, 1)
-scale = Vector2(0.56, 0.56)
+scale = Vector2(1.12, 1.12)
 texture = ExtResource("2_icon")

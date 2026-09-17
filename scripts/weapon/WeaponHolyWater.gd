@@ -47,6 +47,8 @@ func _throw_bottle() -> void:
 	if zone_scene == null:
 		return
 		
+	AudioManager.play_shoot()
+		
 	# 주변 적 위치 우선, 없으면 랜덤 위치에 투척
 	var target_pos = global_position
 	var enemies = get_tree().get_nodes_in_group("Enemy")

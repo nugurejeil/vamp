@@ -17,8 +17,13 @@ func _ready() -> void:
 		add_child(p)
 		_players.append(p)
 		
-	# 프로시저럴 사운드 프리셋 합성
-	_sfx_cache["shoot"] = _generate_laser()
+	# SFX 프리셋 로드 (플레이어 공격음은 assets/sound/attack_player.mp3 로드)
+	var attack_sfx = load("res://assets/sound/attack_player.mp3")
+	if attack_sfx:
+		_sfx_cache["shoot"] = attack_sfx
+	else:
+		_sfx_cache["shoot"] = _generate_laser()
+		
 	_sfx_cache["hit"] = _generate_hit()
 	_sfx_cache["gem"] = _generate_gem()
 	_sfx_cache["level_up"] = _generate_level_up()

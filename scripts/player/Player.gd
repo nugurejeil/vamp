@@ -5,9 +5,15 @@ class_name Player
 @export var max_hp: float = 100.0
 @export var invulnerability_duration: float = 0.4
 @export var pickup_radius: float = 240.0
+@export var walk_anim_speed: float = 10.0 # 초당 걷기 애니메이션 프레임 속도
 
 var current_hp: float = 100.0
 var is_invulnerable: bool = false
+
+# 애니메이션 트랙 변수
+var anim_timer: float = 0.0
+var anim_frame: int = 0
+var current_dir_row: int = 0 # 0: Down, 1: Left, 2: Right, 3: Up
 
 # 레벨 및 경험치 스탯
 var level: int = 1
@@ -43,16 +49,45 @@ func _ready() -> void:
 	# 초기 경험치 신호 전달
 	EventBus.exp_gained.emit(current_exp, max_exp)
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	var move_dir := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	velocity = move_dir * speed
 	move_and_slide()
 	
-	# 이동 방향에 따른 스프라이트 좌우 반전
-	if move_dir.x > 0:
-		visuals.scale.x = 1.0
-	elif move_dir.x < 0:
-		visuals.scale.x = -1.0
+	_update_animation(move_dir, delta)
+
+func _update_animation(move_dir: Vector2, delta: float) -> void:
+	if move_dir != Vector2.ZERO:
+		# 기본 스프라이트가 '좌측'을 향하고 있으므로:
+		# 우측 이동(x > 0) 시 -1.0으로 이미지 반전 (우측을 바라봄)
+		# 좌측 이동(x < 0) 시 1.0으로 정방향 (좌측을 바라봄)
+		if move_dir.x > 0:
+			visuals.scale.x = -1.0
+		elif move_dir.x < 0:
+			visuals.scale.x = 1.0
+
+		# 상하/좌우 주요 이동 축 판별 (앞뒤 애니메이션 행 반전 적용)
+		if abs(move_dir.x) > abs(move_dir.y):
+			if move_dir.x > 0:
+				current_dir_row = 2 # 우측
+			else:
+				current_dir_row = 1 # 좌측
+		else:
+			if move_dir.y > 0:
+				current_dir_row = 3 # 하단/정면
+			else:
+				current_dir_row = 0 # 상단/후면
+		
+		# 걷기 애니메이션 프레임 순환
+		anim_timer += delta * walk_anim_speed
+		anim_frame = int(anim_timer) % 4
+	else:
+		# 정지 상태: 서있는 프레임 고정
+		anim_timer = 0.0
+		anim_frame = 0
+		
+	if sprite:
+		sprite.frame = current_dir_row * 4 + anim_frame
 
 var shake_trauma: float = 0.0
 
@@ -89,7 +124,7 @@ func heal(amount: float) -> void:
 	# 회복 초록 플래시 연출
 	var tween = create_tween()
 	sprite.modulate = Color(0.3, 1.0, 0.4, 1.0)
-	tween.tween_property(sprite, "modulate", Color(0.28, 0.65, 1, 1), 0.2)
+	tween.tween_property(sprite, "modulate", Color(1, 1, 1, 1), 0.2)
 
 func gain_exp(amount: int) -> void:
 	current_exp += amount
